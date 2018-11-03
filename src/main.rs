@@ -1,4 +1,9 @@
 extern crate actix_web;
+extern crate dotenv;
+#[macro_use]
+extern crate log;
+extern crate env_logger;
+
 use actix_web::{http, server, App, HttpRequest};
 use std::cell::Cell;
 
@@ -13,15 +18,20 @@ fn index(req: &HttpRequest<AppState>) -> String {
     let count = req.state().counter.get() + 1; // <- get count
     req.state().counter.set(count); // <- store new count in state
     let resp = format!("Request #{} - RemoteIP={:?}", count, req.connection_info().remote());
-    println!("{}", resp);
+    info!("{}", resp);
     resp
 }
 
+
 fn main() {
+    dotenv::dotenv().ok();
+    env_logger::init();
+
+    let listen = std::env::var("LISTEN_ADDR").unwrap();
     server::new(|| {
         App::with_state(AppState { counter: Cell::new(0) })
         .resource("/", |r| r.method(http::Method::GET).f(index))
-    }).bind("127.0.0.1:8088")
+    }).bind(&listen)
         .unwrap()
         .run();
 }

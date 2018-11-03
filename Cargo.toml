@@ -4,4 +4,8 @@ version = "0.1.0"
 authors = ["Andy O'Neill <andy@potatoriot.com>"]
 
 [dependencies]
+# General
+dotenv = "0.10"
+log = "0.4"
+env_logger = "0.5"
 actix-web = "0.7"
