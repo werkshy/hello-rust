@@ -8,4 +8,17 @@ authors = ["Andy O'Neill <andy@potatoriot.com>"]
 dotenv = "0.10"
 log = "0.4"
 env_logger = "0.5"
+futures = "0.1"
+
+# Web
+actix = "0.7"
 actix-web = "0.7"
+serde = "1.0"
+serde_json = "1.0"
+serde_derive = "1.0"
+
+# Database
+diesel = { version = "^1.1.0", features = ["postgres", "r2d2"] }
+r2d2 = "0.8"
+
+
