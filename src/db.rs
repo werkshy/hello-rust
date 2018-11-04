@@ -31,8 +31,6 @@ impl Handler<FindThing> for DbExecutor {
 
         let conn: &PgConnection = &self.0.get().unwrap();
 
-        debug!("Looking up Thing called '{:?}'", msg.name);
-
         let mut items = things
             .filter(name.eq(&msg.name))
             .limit(1)

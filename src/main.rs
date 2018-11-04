@@ -49,8 +49,6 @@ fn index(req: &HttpRequest<AppState>) -> String {
 fn thing(req: &HttpRequest<AppState>) -> FutureResponse<HttpResponse> {
     let name: String  = req.match_info().query("name").unwrap();
 
-    info!("Request for thing called '{}'", name);
-
     // send async `FindThing` message to a `DbExecutor`
     req.state()
         .db
