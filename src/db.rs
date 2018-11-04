@@ -3,7 +3,7 @@ use actix_web::*;
 use diesel::prelude::*;
 use diesel::r2d2::{ConnectionManager, Pool};
 
-use models;
+use models::thing::Thing;
 use schema;
 
 // This is db executor actor. We are going to run several of them in parallel.
@@ -16,7 +16,7 @@ pub struct FindThing {
 }
 
 impl Message for FindThing {
-    type Result = Result<Option<models::Thing>, Error>;
+    type Result = Result<Option<Thing>, Error>;
 }
 
 impl Actor for DbExecutor {
@@ -24,7 +24,7 @@ impl Actor for DbExecutor {
 }
 
 impl Handler<FindThing> for DbExecutor {
-    type Result = Result<Option<models::Thing>, Error>;
+    type Result = Result<Option<Thing>, Error>;
 
     fn handle(&mut self, msg: FindThing, _: &mut Self::Context) -> Self::Result {
         use self::schema::things::dsl::*;
@@ -34,7 +34,7 @@ impl Handler<FindThing> for DbExecutor {
         let mut items = things
             .filter(name.eq(&msg.name))
             .limit(1)
-            .load::<models::Thing>(conn)
+            .load::<Thing>(conn)
             .map_err(|_| error::ErrorInternalServerError("Error loading thing"))?;
         Ok(items.pop())
     }
