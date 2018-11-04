@@ -61,14 +61,15 @@ fn thing(req: &HttpRequest<AppState>) -> FutureResponse<HttpResponse> {
         .responder()
 }
 
+// Start DB executors
 fn db_executors() -> Addr<DbExecutor> {
+    let num_executors: usize = env::var("DATABASE_EXECUTORS").unwrap().parse().unwrap();
     let dburl = env::var("DATABASE_URL").unwrap();
-    // Start 3 db executor actors
     let manager = ConnectionManager::<PgConnection>::new(dburl);
     let pool = r2d2::Pool::builder()
         .build(manager)
         .expect("Failed to create pool.");
-    SyncArbiter::start(3, move || DbExecutor(pool.clone()))
+    SyncArbiter::start(num_executors, move || DbExecutor(pool.clone()))
 }
 
 fn routes(app: App<AppState>) -> App<AppState> {
