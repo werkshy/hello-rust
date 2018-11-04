@@ -64,32 +64,41 @@ fn thing(req: &HttpRequest<AppState>) -> FutureResponse<HttpResponse> {
         .responder()
 }
 
-
-fn main() {
-    dotenv::dotenv().ok();
-    env_logger::init();
-
-    let listen = env::var("LISTEN_ADDR").unwrap();
+fn db_executors() -> Addr<DbExecutor> {
     let dburl = env::var("DATABASE_URL").unwrap();
-    let sys = actix::System::new("hello-rust");
-
     // Start 3 db executor actors
     let manager = ConnectionManager::<PgConnection>::new(dburl);
     let pool = r2d2::Pool::builder()
         .build(manager)
         .expect("Failed to create pool.");
+    SyncArbiter::start(3, move || DbExecutor(pool.clone()))
+}
 
-    let addr = SyncArbiter::start(3, move || DbExecutor(pool.clone()));
+fn server(db: Addr<DbExecutor>) -> Addr<server::Server> {
+    let listen = env::var("LISTEN_ADDR").unwrap();
+    let log_format = "%a \"%r\" %s %b \"%{Referer}i\" \"%{User-Agent}i\" %Dms";
 
-    server::new(move || {
-        App::with_state(AppState { db: addr.clone() })
-            .middleware(middleware::Logger::default())
+    let server_addr = server::new(move || {
+        App::with_state(AppState { db: db.clone() })
+            .middleware(middleware::Logger::new(log_format))
             .resource("/", |r| r.method(http::Method::GET).f(index))
             .resource("/thing/{name}", |r| r.method(http::Method::GET).f(thing))
     }).bind(&listen)
         .unwrap()
         .start();
     info!("Started http server: http://{}", listen);
+    server_addr
+}
+
+fn main() {
+    dotenv::dotenv().ok();
+    env_logger::init();
+
+    let sys = actix::System::new("hello-rust");
+
+    let db_addr = db_executors();
+
+    server(db_addr);
 
     let _ = sys.run();
 }
