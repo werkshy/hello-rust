@@ -1,5 +1,4 @@
 use std::time::SystemTime;
-use diesel::Queryable;
 
 #[derive(Serialize, Queryable)]
 pub struct Thing {
