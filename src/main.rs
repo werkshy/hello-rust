@@ -14,7 +14,7 @@ use std::env;
 
 use actix::prelude::*;
 use actix_web::{
-    http, middleware, server, App, AsyncResponder, FutureResponse, HttpRequest, HttpResponse,
+    http, fs, middleware, server, App, AsyncResponder, FutureResponse, HttpRequest, HttpResponse,
 };
 
 use diesel::prelude::*;
@@ -38,11 +38,8 @@ struct AppState {
     db: Addr<DbExecutor>,
 }
 
-
-fn index(req: &HttpRequest<AppState>) -> String {
-    let resp = format!("Request RemoteIP={:?}", req.connection_info().remote());
-    info!("{}", resp);
-    resp
+fn index<AppState: 'static>(req: &HttpRequest<AppState>) -> fs::NamedFile {
+   fs::NamedFile::open("./static/index.html").unwrap()
 }
 
 // Async handler
@@ -74,20 +71,18 @@ fn db_executors() -> Addr<DbExecutor> {
     SyncArbiter::start(3, move || DbExecutor(pool.clone()))
 }
 
-fn server(db: Addr<DbExecutor>) -> Addr<server::Server> {
-    let listen = env::var("LISTEN_ADDR").unwrap();
-    let log_format = "%a \"%r\" %s %b \"%{Referer}i\" \"%{User-Agent}i\" %Dms";
+fn routes(app: App<AppState>) -> App<AppState> {
+    app
+        .default_resource(|_| HttpResponse::NotFound())
+        .handler("/static", fs::StaticFiles::new("./static").unwrap())
+        .resource("/", |r| r.method(http::Method::GET).f(index))
+        .resource("/thing/{name}", |r| r.method(http::Method::GET).f(thing))
+}
 
-    let server_addr = server::new(move || {
-        App::with_state(AppState { db: db.clone() })
-            .middleware(middleware::Logger::new(log_format))
-            .resource("/", |r| r.method(http::Method::GET).f(index))
-            .resource("/thing/{name}", |r| r.method(http::Method::GET).f(thing))
-    }).bind(&listen)
-        .unwrap()
-        .start();
-    info!("Started http server: http://{}", listen);
-    server_addr
+fn middleware(app: App<AppState>) -> App<AppState> {
+    let log_format = "%a \"%r\" %s %b \"%{Referer}i\" \"%{User-Agent}i\" %Dms";
+    app
+           .middleware(middleware::Logger::new(log_format))
 }
 
 fn main() {
@@ -98,7 +93,16 @@ fn main() {
 
     let db_addr = db_executors();
 
-    server(db_addr);
+    let listen = env::var("LISTEN_ADDR").unwrap();
+
+    server::new(move || {
+        App::with_state(AppState { db: db_addr.clone() })
+           .configure(routes)
+           .configure(middleware)
+    }).bind(&listen)
+        .expect("Can not bind to listen address")
+        .start();
+    info!("Started http server: http://{}", listen);
 
     let _ = sys.run();
 }

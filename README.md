@@ -31,4 +31,6 @@ curl http://127.0.0.1:8088/thing/
 
 ## TODO
 
-- tests
+- Tests
+- Tracing
+
