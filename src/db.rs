@@ -16,7 +16,7 @@ pub struct FindThing {
 }
 
 impl Message for FindThing {
-    type Result = Result<models::Thing, Error>;
+    type Result = Result<Option<models::Thing>, Error>;
 }
 
 impl Actor for DbExecutor {
@@ -24,7 +24,7 @@ impl Actor for DbExecutor {
 }
 
 impl Handler<FindThing> for DbExecutor {
-    type Result = Result<models::Thing, Error>;
+    type Result = Result<Option<models::Thing>, Error>;
 
     fn handle(&mut self, msg: FindThing, _: &mut Self::Context) -> Self::Result {
         use self::schema::things::dsl::*;
@@ -35,10 +35,9 @@ impl Handler<FindThing> for DbExecutor {
 
         let mut items = things
             .filter(name.eq(&msg.name))
+            .limit(1)
             .load::<models::Thing>(conn)
             .map_err(|_| error::ErrorInternalServerError("Error loading thing"))?;
-
-        // TODO better error handling
-        Ok(items.pop().unwrap())
+        Ok(items.pop())
     }
 }

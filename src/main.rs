@@ -59,7 +59,8 @@ fn thing(req: &HttpRequest<AppState>) -> FutureResponse<HttpResponse> {
         })
         .from_err()
         .and_then(|res| match res {
-            Ok(user) => Ok(HttpResponse::Ok().json(user)),
+            Ok(Some(thing)) => Ok(HttpResponse::Ok().json(thing)),
+            Ok(None) => Ok(HttpResponse::NotFound().into()),
             Err(_) => Ok(HttpResponse::InternalServerError().into()),
         })
         .responder()
