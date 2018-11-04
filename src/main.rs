@@ -28,7 +28,7 @@ mod schema;
 
 use db::{
     DbExecutor,
-    FindThing,
+    thing::FindThing,
 };
 
 

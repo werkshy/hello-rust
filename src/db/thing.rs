@@ -6,9 +6,7 @@ use diesel::r2d2::{ConnectionManager, Pool};
 use models::thing::Thing;
 use schema;
 
-// This is db executor actor. We are going to run several of them in parallel.
-// TODO: genericize with connection type
-pub struct DbExecutor(pub Pool<ConnectionManager<PgConnection>>);
+use db::DbExecutor;
 
 // Message Definitions
 pub struct FindThing {
@@ -17,10 +15,6 @@ pub struct FindThing {
 
 impl Message for FindThing {
     type Result = Result<Option<Thing>, Error>;
-}
-
-impl Actor for DbExecutor {
-    type Context = SyncContext<Self>;
 }
 
 impl Handler<FindThing> for DbExecutor {
