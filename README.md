@@ -26,11 +26,19 @@ cargo run
 ## Use
 ```
 curl http://127.0.0.1:8088/
-curl http://127.0.0.1:8088/thing/
+curl http://127.0.0.1:8088/thing/foo
 ```
 
 ## TODO
 
-- Tests
-- Tracing
+- [x] Json http endpoint
+- [x] Static files & homepage
+- [x] Async ORM (wrapper)
+- [ ] Tests
+    - [x] db
+    - [ ] integration
+- [ ] CI
+- [ ] Deployment
+- [ ] Tracing
+- [ ] Structured logging
 
