@@ -17,7 +17,6 @@ use actix_web::{
     http, fs, middleware, server, App, AsyncResponder, FutureResponse, HttpRequest, HttpResponse,
 };
 
-use diesel::prelude::*;
 use diesel::PgConnection;
 use diesel::r2d2::ConnectionManager;
 use futures::Future;
@@ -38,7 +37,7 @@ struct AppState {
     db: Addr<DbExecutor>,
 }
 
-fn index<AppState: 'static>(req: &HttpRequest<AppState>) -> fs::NamedFile {
+fn index<AppState: 'static>(_req: &HttpRequest<AppState>) -> fs::NamedFile {
    fs::NamedFile::open("./static/index.html").unwrap()
 }
 

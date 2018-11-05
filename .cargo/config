@@ -1,0 +1,6 @@
+# https://doc.rust-lang.org/cargo/reference/config.html
+
+[build]
+# Disable 'names from parent modules are not accessible without an explicit
+# import' warning that is fixed in an unreleased version of Diesel
+rustflags = ["-Aproc-macro-derive-resolution-fallback"]
