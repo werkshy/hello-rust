@@ -6,6 +6,7 @@ use models::thing::Thing;
 use schema;
 
 use db::DbExecutor;
+use db::TracingHandler;
 
 // Message Definitions
 pub struct FindThing {
@@ -16,10 +17,10 @@ impl Message for FindThing {
     type Result = Result<Option<Thing>, Error>;
 }
 
-impl Handler<FindThing> for DbExecutor {
-    type Result = Result<Option<Thing>, Error>;
+impl TracingHandler<FindThing> for DbExecutor {
+    type WrappedResult = Result<Option<Thing>, Error>;
 
-    fn handle(&mut self, msg: FindThing, _: &mut Self::Context) -> Self::Result {
+    fn inner_handle(&mut self, msg: FindThing, _: &mut Self::Context) -> Self::Result {
         let conn: &PgConnection = &self.0.get().unwrap();
         find_thing(conn, msg)
     }
