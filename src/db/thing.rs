@@ -18,9 +18,10 @@ impl Message for FindThing {
 }
 
 impl TracingHandler<FindThing> for DbExecutor {
-    type WrappedResult = Result<Option<Thing>, Error>;
+    type WrappedResult = <FindThing as Message>::Result;
+    //type WrappedResult = Result<Option<Thing>, Error>;
 
-    fn inner_handle(&mut self, msg: FindThing, _: &mut Self::Context) -> Self::Result {
+    fn inner_handle(&mut self, msg: FindThing, _: &mut Self::Context) -> Self::WrappedResult {
         let conn: &PgConnection = &self.0.get().unwrap();
         find_thing(conn, msg)
     }
