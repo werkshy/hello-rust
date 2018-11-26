@@ -6,8 +6,20 @@ This is a simple actix-web rust API example using Diesel as the ORM. It's mostly
 
 ## To get started
 
+Check out the config file `.env` which will look something like this:
+
 ```
-cargo install diesel_cli
+RUST_LOG=hello_rust=debug,actix_web::middleware::logger=info
+LISTEN_ADDR=127.0.0.1:8088
+DATABASE_URL=postgres://localhost/hello_rust
+DATABASE_EXECUTORS=4
+```
+
+Initialize the diesel migration system:
+
+```
+createdb hello_rust
+cargo install diesel_cli --no-default-features --features postgres
 diesel setup
 ```
 
