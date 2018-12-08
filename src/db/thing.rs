@@ -45,7 +45,9 @@ mod tests {
     fn get_thing_when_it_exists() {
         let conn = get_conn();
 
-        let msg = FindThing { name: "foo".to_string() };
+        let msg = FindThing {
+            name: "foo".to_string(),
+        };
         let result = find_thing(&conn, msg);
         assert!(result.is_ok(), "DB error");
 
