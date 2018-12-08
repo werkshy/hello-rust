@@ -47,7 +47,7 @@ fn thing(req: &HttpRequest<AppState>) -> FutureResponse<HttpResponse> {
     // send async `FindThing` message to a `DbExecutor`
     req.state()
         .db
-        .send(FindThing { name: name })
+        .send(FindThing { name })
         .from_err()
         .and_then(|res| match res {
             Ok(Some(thing)) => Ok(HttpResponse::Ok().json(thing)),

@@ -22,11 +22,11 @@ impl TracingHandler<FindThing> for DbExecutor {
 
     fn inner_handle(&mut self, msg: FindThing, _: &mut Self::Context) -> Self::Result {
         let conn: &PgConnection = &self.0.get().unwrap();
-        find_thing(conn, msg)
+        find_thing(conn, &msg)
     }
 }
 
-fn find_thing(conn: &PgConnection, msg: FindThing) -> Result<Option<Thing>, Error> {
+fn find_thing(conn: &PgConnection, msg: &FindThing) -> Result<Option<Thing>, Error> {
     use self::schema::things::dsl::*;
     let mut items = things
         .filter(name.eq(&msg.name))
