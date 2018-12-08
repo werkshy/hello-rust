@@ -1,12 +1,12 @@
-use actix::prelude::*;
+use ::actix::prelude::*;
 use actix_web::*;
 use diesel::prelude::*;
 
-use models::thing::Thing;
-use schema;
+use crate::models::thing::Thing;
+use crate::schema;
 
-use db::DbExecutor;
-use db::TracingHandler;
+use crate::db::DbExecutor;
+use crate::db::TracingHandler;
 
 // Message Definitions
 pub struct FindThing {

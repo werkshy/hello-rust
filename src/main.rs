@@ -1,21 +1,14 @@
-extern crate actix;
-extern crate actix_web;
+// Diesel generates schema.rs which isn't quite ready for rust 2018 edition,
+// so keep the old #[macro_use] import for now.
 #[macro_use]
 extern crate diesel;
-extern crate dotenv;
-extern crate env_logger;
-extern crate futures;
-#[macro_use]
-extern crate log;
-extern crate r2d2;
-extern crate serde;
-extern crate serde_json;
-#[macro_use]
-extern crate serde_derive;
-
-use std::env;
 
 use actix::prelude::*;
+use log::info;
+use std::env;
+
+use actix;
+//use actix::prelude::*;
 use actix_web::{
     fs, http, middleware, server, App, AsyncResponder, FutureResponse, HttpRequest, HttpResponse,
 };
@@ -28,7 +21,7 @@ mod db;
 mod models;
 mod schema;
 
-use db::{thing::FindThing, DbExecutor};
+use crate::db::{thing::FindThing, DbExecutor};
 
 // This struct represents state. In this example each thread (4 threads by default on my laptop)
 // gets its own state.
